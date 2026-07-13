@@ -1,6 +1,6 @@
 # WatchMind
 
-WatchMind is a private, personal movie and TV recommendation application. The repository contains a responsive application foundation, a private Supabase data layer, and server-backed authentication with Google OAuth and email magic links. Rating workflows and recommendation logic are not implemented yet.
+WatchMind is a private, personal movie and TV recommendation application. The repository contains a responsive application foundation, a private Supabase data layer, server-backed authentication, and a typed server-only TMDB integration. Rating workflows and recommendation logic are not implemented yet.
 
 ## Stack
 
@@ -98,6 +98,7 @@ src/
   app/                 App Router routes and route-level states
   components/
     auth/              Login forms and account menu
+    content/           Shared movie and TV presentation
     feedback/          Shared loading and error presentations
     layout/            Responsive application shell
     pages/             Temporary route placeholders
@@ -107,7 +108,7 @@ src/
     auth/                 Server auth guards and safe redirects
     repositories/         Authenticated, user-scoped data access
     supabase/           Browser and server Supabase clients
-    tmdb/               Server-only TMDB gateway
+    tmdb/               Server-only TMDB gateway and normalization
   styles/              Tailwind theme and global styles
   types/               Shared domain, TMDB, and database types
 ```
@@ -117,6 +118,8 @@ src/
 - Use `getSupabaseBrowserClient()` only from Client Components.
 - Use `createSupabaseServerClient()` from Server Components, Server Actions, or Route Handlers.
 - Use `getTmdbClient()` only on the server; its module is guarded with `server-only`.
+- Prefer `getTmdbService()` for normalized movie and TV data. Direct client
+  access is reserved for adding service endpoints.
 - Keep `src/types/database.ts` aligned with migrations. After starting the local
   stack, regenerate it with `npm run db:types > src/types/database.ts`.
 - Keep user-owned data in Supabase and protect every user-owned table with Row Level Security. Browser storage must never become the source of truth.
@@ -143,11 +146,15 @@ prevention, indexes, and two-user isolation. More detail is available in
 
 ## Current scope
 
-The private navigation routes require a Supabase session and currently render
-informative placeholders. The schema, typed repositories, login flows, and
-account settings are ready, but the app does not yet include card swiping, TMDB
-persistence, recommendation ranking, or watch-history UI behavior.
+The private navigation routes require a Supabase session. Discover currently
+hosts a temporary TMDB verification lab; the remaining product routes render
+informative placeholders. The schema, typed repositories, login flows, account
+settings, and TMDB service are ready, but the app does not yet include card
+swiping, recommendation ranking, or watch-history UI behavior.
 
 ## Attribution
 
-This product uses the TMDB API but is not endorsed or certified by TMDB. Before launch, add TMDB's required logo and the current attribution language to the appropriate public product surface.
+This product uses the TMDB API but is not endorsed or certified by TMDB. The
+approved logo and notice currently appear on the Discover verification page;
+retain them in a permanent About or Credits surface before launch. Integration
+details are documented in [`docs/tmdb.md`](docs/tmdb.md).

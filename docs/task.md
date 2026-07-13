@@ -54,7 +54,7 @@ Deployment: Vercel
 - [x] Task 2 — Project Foundation
 - [x] Task 3 — Database and Privacy
 - [x] Task 4 — Authentication
-- [ ] Task 5 — TMDB Integration
+- [x] Task 5 — TMDB Integration
 - [ ] Task 6 — Tinder-Style Rating Flow
 - [ ] Task 7 — Taste Profile Engine
 - [ ] Task 8 — Recommendation Engine
@@ -455,16 +455,16 @@ At the end, create a temporary development page that verifies:
 
 ## Completion Checklist
 
-- [ ] TMDB token remains server-side
-- [ ] Movies and TV shows use one normalized model
-- [ ] Trending and popular endpoints work
-- [ ] Search works
-- [ ] Details endpoints work
-- [ ] Missing images and metadata are handled
-- [ ] Caching exists
-- [ ] Duplicate content is prevented
-- [ ] TMDB attribution exists
-- [ ] Development verification page exists
+- [x] TMDB token remains server-side
+- [x] Movies and TV shows use one normalized model
+- [x] Trending and popular endpoints work
+- [x] Search works
+- [x] Details endpoints work
+- [x] Missing images and metadata are handled
+- [x] Caching exists
+- [x] Duplicate content is prevented
+- [x] TMDB attribution exists
+- [x] Development verification page exists
 
 ---
 

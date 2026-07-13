@@ -1,13 +1,18 @@
 import "server-only";
 
 import { getServerEnv } from "@/config/server-env";
-import type { TmdbPaginatedResponse, TmdbTitle } from "@/types/tmdb";
-
 const TMDB_API_BASE_URL = "https://api.themoviedb.org/3";
+const DEFAULT_REVALIDATE_SECONDS = 3600;
+const REQUEST_TIMEOUT_MS = 10_000;
 
 export class TmdbApiError extends Error {
-  constructor(message: string, public readonly status: number) {
-    super(message);
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly retryable = status === 429 || status >= 500,
+    options?: ErrorOptions,
+  ) {
+    super(message, options);
     this.name = "TmdbApiError";
   }
 }
@@ -15,33 +20,53 @@ export class TmdbApiError extends Error {
 export interface TmdbRequestOptions {
   params?: Readonly<Record<string, string | number | boolean | undefined>>;
   revalidate?: number;
+  tags?: readonly string[];
 }
 
 export class TmdbClient {
-  async request<T>(path: `/${string}`, options: TmdbRequestOptions = {}): Promise<T> {
+  async request(path: `/${string}`, options: TmdbRequestOptions = {}) {
     const url = new URL(`${TMDB_API_BASE_URL}${path}`);
+    url.searchParams.set("language", "en-US");
     Object.entries(options.params ?? {}).forEach(([key, value]) => {
       if (value !== undefined) url.searchParams.set(key, String(value));
     });
 
-    const response = await fetch(url, {
-      headers: {
-        accept: "application/json",
-        authorization: `Bearer ${getServerEnv().TMDB_API_TOKEN}`,
-      },
-      next: { revalidate: options.revalidate ?? 3600 },
-    });
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        cache: "force-cache",
+        headers: {
+          accept: "application/json",
+          authorization: `Bearer ${getServerEnv().TMDB_API_TOKEN}`,
+        },
+        next: {
+          revalidate: options.revalidate ?? DEFAULT_REVALIDATE_SECONDS,
+          tags: [...(options.tags ?? ["tmdb"])],
+        },
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
+    } catch (error) {
+      throw new TmdbApiError(
+        "TMDB could not be reached. Please try again.",
+        503,
+        true,
+        { cause: error },
+      );
+    }
 
     if (!response.ok) {
-      throw new TmdbApiError("TMDB request failed.", response.status);
+      throw new TmdbApiError(
+        response.status === 401
+          ? "The TMDB API credential is not configured correctly."
+          : response.status === 404
+            ? "The requested TMDB title was not found."
+            : response.status === 429
+              ? "TMDB is rate limiting requests. Please try again shortly."
+              : "TMDB could not complete the request.",
+        response.status,
+      );
     }
-    return (await response.json()) as T;
-  }
-
-  getTrendingTitles() {
-    return this.request<TmdbPaginatedResponse<TmdbTitle>>("/trending/all/week", {
-      revalidate: 1800,
-    });
+    return (await response.json()) as unknown;
   }
 }
 
