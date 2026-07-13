@@ -4,12 +4,12 @@ export type Reaction =
   | "watched_liked"
   | "watched_disliked"
   | "watched_neutral"
-  | "unwatched_interested"
+  | "interested"
   | "not_interested"
   | "skipped";
 
 export interface TitleSummary {
-  id: number;
+  id: string;
   tmdbId: number;
   mediaType: MediaType;
   title: string;
@@ -22,7 +22,7 @@ export interface TitleSummary {
 export interface UserInteraction {
   id: string;
   userId: string;
-  titleId: number;
+  titleId: string;
   reaction: Reaction;
   createdAt: string;
   updatedAt: string;

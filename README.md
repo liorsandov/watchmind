@@ -5,7 +5,7 @@ WatchMind is a private, personal movie and TV recommendation application. This r
 ## Stack
 
 - Next.js App Router, React, and strict TypeScript
-- Ant Design with SCSS modules and shared design tokens
+- Tailwind CSS v4 with owned shadcn/ui primitives
 - Supabase Auth and PostgreSQL (integration clients only at this stage)
 - TMDB API (server-only integration)
 - Vercel-ready Next.js deployment
@@ -68,12 +68,12 @@ src/
     feedback/          Shared loading and error presentations
     layout/            Responsive application shell
     pages/             Temporary route placeholders
-    providers/         Ant Design and future root providers
+    ui/                Owned shadcn/ui primitives
   config/              Validated environment access
   lib/
     supabase/           Browser and server Supabase clients
     tmdb/               Server-only TMDB gateway
-  styles/              Global SCSS and design tokens
+  styles/              Tailwind theme and global styles
   types/               Shared domain, TMDB, and database types
 ```
 
@@ -84,6 +84,9 @@ src/
 - Use `getTmdbClient()` only on the server; its module is guarded with `server-only`.
 - Replace `src/types/database.ts` with Supabase-generated types after database migrations are introduced.
 - Keep user-owned data in Supabase and protect every user-owned table with Row Level Security. Browser storage must never become the source of truth.
+
+The approved product and technical plan is documented in
+[`docs/architecture.md`](docs/architecture.md).
 
 ## Current scope
 
