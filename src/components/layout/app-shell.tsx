@@ -13,6 +13,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { UserMenu } from "@/components/auth/user-menu";
 import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
@@ -93,7 +94,13 @@ function Navigation({
   );
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  user,
+}: {
+  children: React.ReactNode;
+  user: { displayName: string | null; email: string };
+}) {
   const pathname = usePathname();
 
   return (
@@ -136,9 +143,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="md:hidden">
           <Brand />
         </div>
-        <p className="text-xs text-muted-foreground sm:text-sm">
-          Private by design
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="hidden text-xs text-muted-foreground sm:block">
+            Private by design
+          </p>
+          <UserMenu {...user} />
+        </div>
       </header>
 
       <main className="md:ms-64">

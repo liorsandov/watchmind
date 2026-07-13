@@ -53,7 +53,7 @@ Deployment: Vercel
 - [x] Task 1 — Product Architecture
 - [x] Task 2 — Project Foundation
 - [x] Task 3 — Database and Privacy
-- [ ] Task 4 — Authentication
+- [x] Task 4 — Authentication
 - [ ] Task 5 — TMDB Integration
 - [ ] Task 6 — Tinder-Style Rating Flow
 - [ ] Task 7 — Taste Profile Engine
@@ -383,16 +383,16 @@ At the end:
 
 ## Completion Checklist
 
-- [ ] Google sign-in works
-- [ ] Magic-link sign-in works
-- [ ] Callback route works
-- [ ] Private routes are protected
-- [ ] Session persists after refresh
-- [ ] Logout works
-- [ ] Auth errors are handled
-- [ ] Account settings page exists
-- [ ] No service-role secret is exposed
-- [ ] Lint, type checking, and build pass
+- [x] Google sign-in works
+- [x] Magic-link sign-in works
+- [x] Callback route works
+- [x] Private routes are protected
+- [x] Session persists after refresh
+- [x] Logout works
+- [x] Auth errors are handled
+- [x] Account settings page exists
+- [x] No service-role secret is exposed
+- [x] Lint, type checking, and build pass
 
 ---
 

@@ -1,12 +1,12 @@
 # WatchMind
 
-WatchMind is a private, personal movie and TV recommendation application. This repository currently contains the production-oriented application foundation and private Supabase data layer: a responsive shell, placeholder routes, validated environment access, typed integration clients, versioned migrations, explicit Row Level Security policies, and authenticated repositories. Authentication screens, rating workflows, and recommendation logic are intentionally not implemented yet.
+WatchMind is a private, personal movie and TV recommendation application. The repository contains a responsive application foundation, a private Supabase data layer, and server-backed authentication with Google OAuth and email magic links. Rating workflows and recommendation logic are not implemented yet.
 
 ## Stack
 
 - Next.js App Router, React, and strict TypeScript
 - Tailwind CSS v4 with owned shadcn/ui primitives
-- Supabase Auth and PostgreSQL (integration clients only at this stage)
+- Supabase Auth and PostgreSQL
 - TMDB API (server-only integration)
 - Vercel-ready Next.js deployment
 
@@ -60,6 +60,25 @@ WatchMind is a private, personal movie and TV recommendation application. This r
 
 6. Open [http://localhost:3000](http://localhost:3000).
 
+### Configure authentication
+
+Email magic links work automatically with the local Supabase email inbox at
+[http://127.0.0.1:54324](http://127.0.0.1:54324). For a hosted project, add
+your production `/auth/callback` URL to **Authentication → URL Configuration →
+Redirect URLs** and configure an SMTP provider before production use.
+
+Google sign-in also requires external provider setup:
+
+1. Create Google OAuth web credentials and add the Supabase provider callback
+   URL shown in **Authentication → Providers → Google** as an authorized redirect URI.
+2. Add the Google client ID and secret to that Supabase provider. The secret
+   belongs in Supabase, never in this repository or a browser environment variable.
+3. Add the app's `https://your-domain.example/auth/callback` URL to the Supabase
+   redirect allow-list.
+
+See [`docs/authentication.md`](docs/authentication.md) for the session, route
+protection, and future account-deletion design.
+
 ## Validation commands
 
 ```bash
@@ -78,12 +97,14 @@ Environment values are validated lazily with Zod when an integration client is f
 src/
   app/                 App Router routes and route-level states
   components/
+    auth/              Login forms and account menu
     feedback/          Shared loading and error presentations
     layout/            Responsive application shell
     pages/             Temporary route placeholders
     ui/                Owned shadcn/ui primitives
   config/              Validated environment access
   lib/
+    auth/                 Server auth guards and safe redirects
     repositories/         Authenticated, user-scoped data access
     supabase/           Browser and server Supabase clients
     tmdb/               Server-only TMDB gateway
@@ -122,9 +143,10 @@ prevention, indexes, and two-user isolation. More detail is available in
 
 ## Current scope
 
-The navigation routes render informative placeholders. The schema and typed
-repositories are ready, but the app does not yet include sign-in screens, card
-swiping, TMDB persistence, recommendation ranking, or watch-history UI behavior.
+The private navigation routes require a Supabase session and currently render
+informative placeholders. The schema, typed repositories, login flows, and
+account settings are ready, but the app does not yet include card swiping, TMDB
+persistence, recommendation ranking, or watch-history UI behavior.
 
 ## Attribution
 
