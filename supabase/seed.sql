@@ -1,0 +1,3 @@
+-- Task 3 intentionally has no seed rows. Real TMDB metadata is added through
+-- the server-only integration in a later phase, and test users live only inside
+-- transactional pgTAP tests.

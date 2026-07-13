@@ -52,7 +52,7 @@ Deployment: Vercel
 
 - [x] Task 1 — Product Architecture
 - [x] Task 2 — Project Foundation
-- [ ] Task 3 — Database and Privacy
+- [x] Task 3 — Database and Privacy
 - [ ] Task 4 — Authentication
 - [ ] Task 5 — TMDB Integration
 - [ ] Task 6 — Tinder-Style Rating Flow
@@ -316,17 +316,17 @@ At the end, explain the schema decisions and how user privacy is enforced.
 
 ## Completion Checklist
 
-- [ ] All required tables exist
-- [ ] Migrations are repeatable
-- [ ] RLS is enabled
-- [ ] Explicit policies exist
-- [ ] Cross-user access is blocked
-- [ ] Useful indexes exist
-- [ ] Duplicate state is prevented
-- [ ] Profile creation trigger exists
-- [ ] TypeScript database types exist
-- [ ] Repository/service layer exists
-- [ ] SQL validation or tests exist
+- [x] All required tables exist
+- [x] Migrations are repeatable
+- [x] RLS is enabled
+- [x] Explicit policies exist
+- [x] Cross-user access is blocked
+- [x] Useful indexes exist
+- [x] Duplicate state is prevented
+- [x] Profile creation trigger exists
+- [x] TypeScript database types exist
+- [x] Repository/service layer exists
+- [x] SQL validation or tests exist
 
 ---
 

@@ -1,12 +1,11 @@
-export type MediaType = "movie" | "tv";
+import type {
+  InteractionType,
+  MediaType,
+} from "@/types/database";
 
-export type Reaction =
-  | "watched_liked"
-  | "watched_disliked"
-  | "watched_neutral"
-  | "interested"
-  | "not_interested"
-  | "skipped";
+export type { MediaType } from "@/types/database";
+
+export type Reaction = InteractionType;
 
 export interface TitleSummary {
   id: string;
