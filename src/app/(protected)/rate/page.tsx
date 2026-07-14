@@ -99,7 +99,7 @@ export default async function RatePage() {
             <Keyboard aria-hidden="true" className="size-4" /> Keyboard shortcuts
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <Info aria-hidden="true" className="size-4" /> Skip is never a dislike
+            <Info aria-hidden="true" className="size-4" /> Haven’t watched won’t affect taste
           </span>
         </div>
       </header>

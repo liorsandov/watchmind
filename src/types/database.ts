@@ -36,7 +36,9 @@ export type RecommendationEventType =
   | "opened"
   | "saved"
   | "dismissed"
-  | "rated";
+  | "rated"
+  | "replaced"
+  | "similar_requested";
 
 export interface Database {
   public: {
@@ -82,6 +84,7 @@ export interface Database {
           original_language: string | null;
           genre_ids: number[];
           popularity: number | null;
+          runtime_minutes: number | null;
           vote_average: number | null;
           vote_count: number | null;
           metadata_updated_at: string;
@@ -101,6 +104,7 @@ export interface Database {
           original_language?: string | null;
           genre_ids?: number[];
           popularity?: number | null;
+          runtime_minutes?: number | null;
           vote_average?: number | null;
           vote_count?: number | null;
           metadata_updated_at?: string;
@@ -120,6 +124,7 @@ export interface Database {
           original_language?: string | null;
           genre_ids?: number[];
           popularity?: number | null;
+          runtime_minutes?: number | null;
           vote_average?: number | null;
           vote_count?: number | null;
           metadata_updated_at?: string;
@@ -306,6 +311,39 @@ export interface Database {
         };
         Relationships: [];
       };
+      taste_profile_snapshots: {
+        Row: {
+          id: string;
+          user_id: string;
+          algorithm_version: string;
+          source_fingerprint: string;
+          source_interaction_count: number;
+          confidence: "low" | "medium" | "high";
+          profile_snapshot: Json;
+          calculated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          algorithm_version: string;
+          source_fingerprint: string;
+          source_interaction_count: number;
+          confidence: "low" | "medium" | "high";
+          profile_snapshot: Json;
+          calculated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          algorithm_version?: string;
+          source_fingerprint?: string;
+          source_interaction_count?: number;
+          confidence?: "low" | "medium" | "high";
+          profile_snapshot?: Json;
+          calculated_at?: string;
+        };
+        Relationships: [];
+      };
       recommendation_sessions: {
         Row: {
           id: string;
@@ -392,7 +430,27 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      upsert_content_item: {
+        Args: {
+          p_tmdb_id: number;
+          p_media_type: MediaType;
+          p_title: string;
+          p_original_title?: string | null;
+          p_overview?: string | null;
+          p_poster_path?: string | null;
+          p_backdrop_path?: string | null;
+          p_release_date?: string | null;
+          p_original_language?: string | null;
+          p_genre_ids?: number[];
+          p_popularity?: number | null;
+          p_vote_average?: number | null;
+          p_vote_count?: number | null;
+          p_runtime_minutes?: number | null;
+        };
+        Returns: Database["public"]["Tables"]["content_items"]["Row"];
+      };
+    };
     Enums: {
       media_type: MediaType;
       interaction_type: InteractionType;

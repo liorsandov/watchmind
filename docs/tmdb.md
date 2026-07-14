@@ -1,9 +1,12 @@
 # TMDB integration
 
-WatchMind fetches TMDB metadata only from server-only modules. The API read
-access token is validated through `getServerEnv()` and is sent as a bearer token
-from `src/lib/tmdb/client.ts`; it is never serialized into Client Component
-props or exposed through a `NEXT_PUBLIC_` environment variable.
+WatchMind fetches TMDB metadata only from server-only modules. The preferred
+credential is `TMDB_READ_ACCESS_TOKEN`, which is sent as a bearer token from
+`src/lib/tmdb/client.ts`. The short v3 `TMDB_API_KEY` is also supported and is
+sent as TMDB's `api_key` query parameter. The legacy `TMDB_API_TOKEN` name
+remains supported as an alias for either format, but TMDB credentials are never
+serialized into Client Component props or exposed through a `NEXT_PUBLIC_`
+environment variable.
 
 ## Service behavior
 

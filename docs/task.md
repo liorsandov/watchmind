@@ -56,11 +56,11 @@ Deployment: Vercel
 - [x] Task 4 — Authentication
 - [x] Task 5 — TMDB Integration
 - [x] Task 6 — Tinder-Style Rating Flow
-- [ ] Task 7 — Taste Profile Engine
-- [ ] Task 8 — Recommendation Engine
-- [ ] Task 9 — Recommendation Experience
-- [ ] Task 10 — History and Long-Term Persistence
-- [ ] Task 11 — Production Readiness Review
+- [x] Task 7 — Taste Profile Engine
+- [x] Task 8 — Recommendation Engine
+- [x] Task 9 — Recommendation Experience
+- [x] Task 10 — History and Long-Term Persistence
+- [x] Task 11 — Production Readiness Review
 
 ---
 
@@ -638,16 +638,16 @@ Do not expose raw internal scoring numbers unless a debug mode is enabled.
 
 ## Completion Checklist
 
-- [ ] TasteProfile model exists
-- [ ] Weighting logic is documented
-- [ ] Raw interactions remain the source of truth
-- [ ] Derived snapshots are stored
-- [ ] Recalculation is idempotent
-- [ ] Confidence thresholds exist
-- [ ] Skip and unsure have little or no impact
-- [ ] Tests cover multiple user patterns
-- [ ] Taste summary screen exists
-- [ ] Debug values remain hidden by default
+- [x] TasteProfile model exists
+- [x] Weighting logic is documented
+- [x] Raw interactions remain the source of truth
+- [x] Derived snapshots are stored
+- [x] Recalculation is idempotent
+- [x] Confidence thresholds exist
+- [x] Skip and unsure have little or no impact
+- [x] Tests cover multiple user patterns
+- [x] Taste summary screen exists
+- [x] Debug values remain hidden by default
 
 ---
 
@@ -735,16 +735,16 @@ Create automated tests for:
 
 ## Completion Checklist
 
-- [ ] Watched items are excluded
-- [ ] Not-interested items are excluded
-- [ ] Duplicates are excluded
-- [ ] Missing metadata is handled
-- [ ] Recommendation categories exist
-- [ ] Reasons are human-readable
-- [ ] Diversity logic exists
-- [ ] Exploration logic exists
-- [ ] Recommendation impressions are recorded
-- [ ] Tests cover required user patterns
+- [x] Watched items are excluded
+- [x] Not-interested items are excluded
+- [x] Duplicates are excluded
+- [x] Missing metadata is handled
+- [x] Recommendation categories exist
+- [x] Reasons are human-readable
+- [x] Diversity logic exists
+- [x] Exploration logic exists
+- [x] Recommendation impressions are recorded
+- [x] Tests cover required user patterns
 
 ---
 
@@ -816,16 +816,16 @@ Create a direct navigation path between:
 
 ## Completion Checklist
 
-- [ ] Session inputs are short and optional
-- [ ] Three recommendation slots are shown
-- [ ] Recommendation reasons are visible
-- [ ] Replace does not count as dislike
-- [ ] Every action persists
-- [ ] Sessions and impressions persist
-- [ ] Watched content stays excluded
-- [ ] Mobile and desktop layouts work
-- [ ] Loading, empty, degraded, and error states exist
-- [ ] Navigation between main flows is clear
+- [x] Session inputs are short and optional
+- [x] Three recommendation slots are shown
+- [x] Recommendation reasons are visible
+- [x] Replace does not count as dislike
+- [x] Every action persists
+- [x] Sessions and impressions persist
+- [x] Watched content stays excluded
+- [x] Mobile and desktop layouts work
+- [x] Loading, empty, degraded, and error states exist
+- [x] Navigation between main flows is clear
 
 ---
 
@@ -895,19 +895,19 @@ Do not include secrets, authentication tokens, or data belonging to other users.
 
 ## Completion Checklist
 
-- [ ] Watchlist exists
-- [ ] Watched history exists
-- [ ] Interaction history exists
-- [ ] Recommendation history exists
-- [ ] Filtering and sorting work
-- [ ] Previous interactions can be edited
-- [ ] Large collections are paginated or virtualized
-- [ ] Return experience exists
-- [ ] Onboarding progress is preserved
-- [ ] Metadata updates do not erase classification
-- [ ] JSON export works
-- [ ] Export contains only current-user data
-- [ ] Export contains no secrets
+- [x] Watchlist exists
+- [x] Watched history exists
+- [x] Interaction history exists
+- [x] Recommendation history exists
+- [x] Filtering and sorting work
+- [x] Previous interactions can be edited
+- [x] Large collections are paginated or virtualized
+- [x] Return experience exists
+- [x] Onboarding progress is preserved
+- [x] Metadata updates do not erase classification
+- [x] JSON export works
+- [x] Export contains only current-user data
+- [x] Export contains no secrets
 
 ---
 
@@ -983,24 +983,24 @@ At the end, provide:
 
 ## Completion Checklist
 
-- [ ] Cross-user isolation is tested
-- [ ] Anonymous access is blocked
-- [ ] TMDB token is not exposed
-- [ ] RLS policies are validated
-- [ ] Duplicate interactions are prevented
-- [ ] Undo is validated
-- [ ] Recommendation exclusions are validated
-- [ ] Large-history behavior is validated
-- [ ] Data export is validated
-- [ ] Accessibility is reviewed
-- [ ] Responsive behavior is reviewed
-- [ ] Performance is reviewed
-- [ ] Lint passes
-- [ ] Type checking passes
-- [ ] Unit tests pass
-- [ ] Integration tests pass
-- [ ] Production build passes
-- [ ] Remaining risks are documented
+- [x] Cross-user isolation is tested
+- [x] Anonymous access is blocked
+- [x] TMDB token is not exposed
+- [x] RLS policies are validated
+- [x] Duplicate interactions are prevented
+- [x] Undo is validated
+- [x] Recommendation exclusions are validated
+- [x] Large-history behavior is validated
+- [x] Data export is validated
+- [x] Accessibility is reviewed
+- [x] Responsive behavior is reviewed
+- [x] Performance is reviewed
+- [x] Lint passes
+- [x] Type checking passes
+- [x] Unit tests pass
+- [x] Integration tests pass
+- [x] Production build passes
+- [x] Remaining risks are documented
 
 ---
 
@@ -1047,19 +1047,19 @@ test: complete production readiness audit
 
 The MVP is complete when:
 
-- [ ] A user can create or access a private account
-- [ ] A user can rate movies and TV shows quickly
-- [ ] Swipe, buttons, and keyboard controls work
-- [ ] Every confirmed interaction is stored in Supabase
-- [ ] Data persists after refresh, logout, and future login
-- [ ] One user cannot access another user's data
-- [ ] A taste profile is calculated from stored interactions
-- [ ] Recommendations exclude watched and rejected titles
-- [ ] Recommendations include understandable reasons
-- [ ] A user can manage a watchlist and history
-- [ ] A user can export their data as JSON
-- [ ] The application works on desktop and mobile
-- [ ] Lint, type checking, tests, and production build pass
+- [x] A user can create or access a private account
+- [x] A user can rate movies and TV shows quickly
+- [x] Swipe, buttons, and keyboard controls work
+- [x] Every confirmed interaction is stored in Supabase
+- [x] Data persists after refresh, logout, and future login
+- [x] One user cannot access another user's data
+- [x] A taste profile is calculated from stored interactions
+- [x] Recommendations exclude watched and rejected titles
+- [x] Recommendations include understandable reasons
+- [x] A user can manage a watchlist and history
+- [x] A user can export their data as JSON
+- [x] The application works on desktop and mobile
+- [x] Lint, type checking, tests, and production build pass
 
 ---
 

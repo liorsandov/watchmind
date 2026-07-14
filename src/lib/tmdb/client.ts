@@ -30,15 +30,19 @@ export class TmdbClient {
     Object.entries(options.params ?? {}).forEach(([key, value]) => {
       if (value !== undefined) url.searchParams.set(key, String(value));
     });
+    const tmdbAuth = getServerEnv().tmdbAuth;
+    const headers: HeadersInit = { accept: "application/json" };
+    if (tmdbAuth.type === "bearer") {
+      headers.authorization = `Bearer ${tmdbAuth.token}`;
+    } else {
+      url.searchParams.set("api_key", tmdbAuth.apiKey);
+    }
 
     let response: Response;
     try {
       response = await fetch(url, {
         cache: "force-cache",
-        headers: {
-          accept: "application/json",
-          authorization: `Bearer ${getServerEnv().TMDB_API_TOKEN}`,
-        },
+        headers,
         next: {
           revalidate: options.revalidate ?? DEFAULT_REVALIDATE_SECONDS,
           tags: [...(options.tags ?? ["tmdb"])],
@@ -57,7 +61,7 @@ export class TmdbClient {
     if (!response.ok) {
       throw new TmdbApiError(
         response.status === 401
-          ? "The TMDB API credential is not configured correctly."
+          ? "The TMDB API credential was rejected. Check that the read access token or API key is copied from the same TMDB app."
           : response.status === 404
             ? "The requested TMDB title was not found."
             : response.status === 429

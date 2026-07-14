@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
 
-select plan(18);
+select plan(23);
 
 select is(
   (
@@ -17,11 +17,12 @@ select is(
         'user_content_interaction_events',
         'user_watch_progress',
         'user_preferences',
+        'taste_profile_snapshots',
         'recommendation_sessions',
         'recommendation_events'
       )
   ),
-  8::bigint,
+  9::bigint,
   'all private recommendation tables exist'
 );
 
@@ -38,12 +39,13 @@ select is(
         'user_content_interaction_events',
         'user_watch_progress',
         'user_preferences',
+        'taste_profile_snapshots',
         'recommendation_sessions',
         'recommendation_events'
       )
       and pg_class.relrowsecurity
   ),
-  8::bigint,
+  9::bigint,
   'RLS is enabled on every application table'
 );
 
@@ -59,11 +61,12 @@ select is(
         'user_content_interaction_events',
         'user_watch_progress',
         'user_preferences',
+        'taste_profile_snapshots',
         'recommendation_sessions',
         'recommendation_events'
       )
   ),
-  23::bigint,
+  25::bigint,
   'the expected explicit policies exist'
 );
 
@@ -79,6 +82,7 @@ select is(
         'user_content_interaction_events',
         'user_watch_progress',
         'user_preferences',
+        'taste_profile_snapshots',
         'recommendation_sessions',
         'recommendation_events'
       )
@@ -116,6 +120,24 @@ select has_index(
   'duplicate watch-progress state is prevented'
 );
 
+select has_column(
+  'public',
+  'content_items',
+  'runtime_minutes',
+  'content metadata supports runtime preference signals'
+);
+
+select isnt(
+  (
+    select oid
+    from pg_proc
+    where pronamespace = 'public'::regnamespace
+      and proname = 'upsert_content_item'
+  ),
+  null,
+  'content metadata has a privileged cache upsert function'
+);
+
 insert into auth.users (id, email, raw_user_meta_data)
 values
   (
@@ -145,7 +167,14 @@ values
   );
 
 select is(
-  (select count(*)::bigint from public.profiles),
+  (
+    select count(*)::bigint
+    from public.profiles
+    where id in (
+      '10000000-0000-0000-0000-000000000001',
+      '20000000-0000-0000-0000-000000000002'
+    )
+  ),
   2::bigint,
   'the auth trigger created both profiles'
 );
@@ -166,6 +195,29 @@ select is(
   (select count(*)::bigint from public.profiles),
   1::bigint,
   'user A can read only their own profile'
+);
+
+select throws_ok(
+  $$
+    insert into public.content_items (tmdb_id, media_type, title)
+    values (900003, 'movie', 'Direct Metadata Write')
+  $$,
+  '42501',
+  null,
+  'authenticated users cannot directly insert shared content metadata'
+);
+
+select is(
+  (
+    select title
+    from public.upsert_content_item(
+      p_tmdb_id := 900003,
+      p_media_type := 'movie',
+      p_title := 'RPC Metadata Write'
+    )
+  ),
+  'RPC Metadata Write',
+  'authenticated users can cache validated content metadata through the function'
 );
 
 insert into public.user_content_interactions (
@@ -189,6 +241,22 @@ set interaction_type = 'watched_neutral',
     rating = 6,
     source = 'history'
 where id = '50000000-0000-0000-0000-000000000005';
+
+insert into public.taste_profile_snapshots (
+  user_id,
+  algorithm_version,
+  source_fingerprint,
+  source_interaction_count,
+  confidence,
+  profile_snapshot
+) values (
+  '10000000-0000-0000-0000-000000000001',
+  'deterministic-v1',
+  'deterministic-v1:test',
+  1,
+  'low',
+  '{"interactionCount":1}'::jsonb
+);
 
 select is(
   (
@@ -222,6 +290,12 @@ select is(
   (select count(*)::bigint from public.user_content_interaction_events),
   0::bigint,
   'user B cannot read user A interaction history'
+);
+
+select is(
+  (select count(*)::bigint from public.taste_profile_snapshots),
+  0::bigint,
+  'user B cannot read user A taste snapshots'
 );
 
 select throws_ok(

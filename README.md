@@ -1,6 +1,6 @@
 # WatchMind
 
-WatchMind is a private, personal movie and TV recommendation application. The repository contains a responsive application foundation, a private Supabase data layer, server-backed authentication, and a typed server-only TMDB integration. Rating workflows and recommendation logic are not implemented yet.
+WatchMind is a private, personal movie and TV recommendation application. It includes responsive rating and recommendation workflows, a private Supabase data layer, server-backed authentication, a typed server-only TMDB integration, persistent watchlist/history management, and current-user JSON export.
 
 ## Stack
 
@@ -16,7 +16,7 @@ WatchMind is a private, personal movie and TV recommendation application. The re
 - npm
 - Docker Desktop or another Docker-compatible runtime for local Supabase
 - A Supabase project
-- A TMDB API read access token
+- A TMDB API read access token or v3 API key
 
 ## Local setup
 
@@ -47,10 +47,12 @@ WatchMind is a private, personal movie and TV recommendation application. The re
    ```dotenv
    NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   TMDB_API_TOKEN=your-tmdb-read-access-token
+   TMDB_READ_ACCESS_TOKEN=your-tmdb-read-access-token
+   # Or, instead of the read access token:
+   # TMDB_API_KEY=your-tmdb-api-key
    ```
 
-   The Supabase URL and anon key are designed to be browser-visible and must still be protected by PostgreSQL Row Level Security. `TMDB_API_TOKEN` is private and is used only by server-only modules. Never expose a Supabase service-role key in a `NEXT_PUBLIC_` variable.
+   The Supabase URL and anon key are designed to be browser-visible and must still be protected by PostgreSQL Row Level Security. `TMDB_READ_ACCESS_TOKEN`, `TMDB_API_KEY`, and the legacy `TMDB_API_TOKEN` alias are private and are used only by server-only modules. Never expose a Supabase service-role key in a `NEXT_PUBLIC_` variable.
 
 5. Start development:
 
@@ -132,7 +134,8 @@ The approved product and technical plan is documented in
 The initial migration lives in `supabase/migrations`. Every application table
 has RLS enabled. User-owned policies target only the `authenticated` role and
 compare ownership to `auth.uid()`. Shared `content_items` rows expose only
-normalized TMDB metadata and are read-only to normal authenticated clients.
+normalized TMDB metadata and are read-only to normal authenticated clients;
+server-side repositories cache them through a restricted database function.
 
 Current interaction state is unique per user/title. A security-definer trigger
 copies creates, changes, and deletes into an append-only audit table that users
@@ -146,11 +149,11 @@ prevention, indexes, and two-user isolation. More detail is available in
 
 ## Current scope
 
-The private navigation routes require a Supabase session. Discover currently
-hosts a temporary TMDB verification lab; the remaining product routes render
-informative placeholders. The schema, typed repositories, login flows, account
-settings, and TMDB service are ready, but the app does not yet include card
-swiping, recommendation ranking, or watch-history UI behavior.
+All approved MVP tasks are implemented. Private routes provide a return dashboard,
+touch/keyboard rating, a transparent taste profile, three-slot recommendation
+sessions, persisted recommendation feedback, watchlist and history management,
+and a user-scoped JSON export. See [`docs/production-readiness.md`](docs/production-readiness.md)
+for validation evidence and remaining deployment risks.
 
 ## Attribution
 

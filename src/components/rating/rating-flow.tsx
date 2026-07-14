@@ -6,12 +6,12 @@ import {
   ChevronUp,
   CircleHelp,
   Eye,
+  EyeOff,
   Heart,
   ImageOff,
   LoaderCircle,
   Meh,
   RotateCcw,
-  SkipForward,
   Sparkles,
   ThumbsDown,
   ThumbsUp,
@@ -22,6 +22,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useTransition,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import {
@@ -92,10 +93,10 @@ const actions: ActionDefinition[] = [
   },
   {
     interactionType: "skipped",
-    label: "Skip this title",
-    shortLabel: "Skip",
+    label: "Haven’t watched",
+    shortLabel: "Haven’t watched",
     key: "S",
-    icon: SkipForward,
+    icon: EyeOff,
     className: "hover:bg-muted",
   },
   {
@@ -114,6 +115,7 @@ export function RatingFlow({ initialClassifiedCount, queue }: RatingFlowProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [isUndoing, setIsUndoing] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -127,6 +129,7 @@ export function RatingFlow({ initialClassifiedCount, queue }: RatingFlowProps) {
   } | null>(null);
   const currentCard = queue[currentIndex];
   const completed = currentIndex;
+  const isBusy = isPending || isSaving || isUndoing;
 
   useEffect(() => {
     for (const card of queue.slice(currentIndex + 1, currentIndex + 4)) {
@@ -139,62 +142,82 @@ export function RatingFlow({ initialClassifiedCount, queue }: RatingFlowProps) {
   }, [currentIndex, queue]);
 
   const classify = useCallback(
-    async (interactionType: InteractionType) => {
-      if (!currentCard || isSaving || isUndoing) return;
+    (interactionType: InteractionType) => {
+      if (!currentCard || isBusy) return;
 
       const definition = actionByType.get(interactionType);
       if (!definition) return;
+      const card = currentCard;
+      const cardIndex = currentIndex;
       setIsSaving(true);
       setError(null);
-      setAnnouncement(`Saving ${definition.label} for ${currentCard.item.title}.`);
+      setAnnouncement(`Saving ${definition.label} for ${card.item.title}.`);
 
-      const result = await saveRatingAction({
-        interactionType,
-        mediaType: currentCard.item.mediaType,
-        source: currentCard.source,
-        tmdbId: currentCard.item.tmdbId,
+      startTransition(async () => {
+        try {
+          const result = await saveRatingAction({
+            interactionType,
+            mediaType: card.item.mediaType,
+            source: card.source,
+            tmdbId: card.item.tmdbId,
+          });
+
+          if (!result.ok) {
+            setError(result.message);
+            setAnnouncement(result.message);
+            setDrag({ x: 0, y: 0 });
+            return;
+          }
+
+          setLastAction({
+            cardIndex,
+            interactionId: result.interactionId,
+            label: definition.label,
+          });
+          setAnnouncement(`${definition.label} saved for ${card.item.title}.`);
+          setCurrentIndex((index) => index + 1);
+          setDetailsOpen(false);
+          setDrag({ x: 0, y: 0 });
+        } catch {
+          const message = "We couldn’t save that answer. Nothing changed—please try again.";
+          setError(message);
+          setAnnouncement(message);
+          setDrag({ x: 0, y: 0 });
+        } finally {
+          setIsSaving(false);
+        }
       });
-
-      if (!result.ok) {
-        setError(result.message);
-        setAnnouncement(result.message);
-        setDrag({ x: 0, y: 0 });
-        setIsSaving(false);
-        return;
-      }
-
-      setLastAction({
-        cardIndex: currentIndex,
-        interactionId: result.interactionId,
-        label: definition.label,
-      });
-      setAnnouncement(`${definition.label} saved for ${currentCard.item.title}.`);
-      setCurrentIndex((index) => index + 1);
-      setDetailsOpen(false);
-      setDrag({ x: 0, y: 0 });
-      setIsSaving(false);
     },
-    [currentCard, currentIndex, isSaving, isUndoing],
+    [currentCard, currentIndex, isBusy, startTransition],
   );
 
-  const undo = useCallback(async () => {
-    if (!lastAction || isSaving || isUndoing) return;
+  const undo = useCallback(() => {
+    if (!lastAction || isBusy) return;
+    const actionToUndo = lastAction;
     setIsUndoing(true);
     setError(null);
-    const result = await undoRatingAction(lastAction.interactionId);
-    if (!result.ok) {
-      setError(result.message);
-      setAnnouncement(result.message);
-      setIsUndoing(false);
-      return;
-    }
+    startTransition(async () => {
+      try {
+        const result = await undoRatingAction(actionToUndo.interactionId);
+        if (!result.ok) {
+          setError(result.message);
+          setAnnouncement(result.message);
+          return;
+        }
 
-    setCurrentIndex(lastAction.cardIndex);
-    setAnnouncement(`${lastAction.label} was undone.`);
-    setLastAction(null);
-    setDetailsOpen(false);
-    setIsUndoing(false);
-  }, [isSaving, isUndoing, lastAction]);
+        setCurrentIndex(actionToUndo.cardIndex);
+        setAnnouncement(`${actionToUndo.label} was undone.`);
+        setLastAction(null);
+        setDetailsOpen(false);
+      } catch {
+        const message = "We couldn’t undo that answer. Your saved rating is unchanged.";
+        setError(message);
+        setAnnouncement(message);
+      } finally {
+        setIsUndoing(false);
+      }
+    });
+  }, [isBusy, lastAction, startTransition]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -218,7 +241,7 @@ export function RatingFlow({ initialClassifiedCount, queue }: RatingFlowProps) {
   }, [classify, undo]);
 
   function onPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
-    if (event.pointerType === "mouse" || isSaving || isUndoing) return;
+    if (event.pointerType === "mouse" || isBusy) return;
     dragStart.current = {
       x: event.clientX,
       y: event.clientY,
@@ -277,7 +300,7 @@ export function RatingFlow({ initialClassifiedCount, queue }: RatingFlowProps) {
       : drag.y < -30
         ? "INTERESTED"
         : drag.y > 30
-          ? "SKIP"
+          ? "HAVEN’T WATCHED"
           : null;
   const progress = queue.length === 0 ? 0 : (completed / queue.length) * 100;
 
@@ -304,7 +327,7 @@ export function RatingFlow({ initialClassifiedCount, queue }: RatingFlowProps) {
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div
-          aria-busy={isSaving}
+          aria-busy={isBusy}
           aria-label={`Rating card for ${currentCard.item.title}`}
           className="relative touch-none overflow-hidden rounded-3xl border bg-card shadow-2xl shadow-black/10 select-none"
           onPointerCancel={onPointerEnd}
@@ -400,7 +423,7 @@ export function RatingFlow({ initialClassifiedCount, queue }: RatingFlowProps) {
               <Button
                 aria-label="Undo most recent answer (U)"
                 className="cursor-pointer"
-                disabled={!lastAction || isSaving || isUndoing}
+                disabled={!lastAction || isBusy}
                 onClick={() => void undo()}
                 size="icon-lg"
                 title="Undo (U)"
@@ -414,7 +437,7 @@ export function RatingFlow({ initialClassifiedCount, queue }: RatingFlowProps) {
                 <Button
                   aria-label={`${label} (${key})`}
                   className={cn("h-auto min-h-12 cursor-pointer flex-col gap-1 py-2", className, interactionType === "unsure" && "col-span-2")}
-                  disabled={isSaving || isUndoing}
+                  disabled={isBusy}
                   key={interactionType}
                   onClick={() => void classify(interactionType)}
                   variant="outline"
@@ -430,7 +453,7 @@ export function RatingFlow({ initialClassifiedCount, queue }: RatingFlowProps) {
           <div className="hidden rounded-2xl border border-dashed p-4 text-xs leading-5 text-muted-foreground sm:block">
             <p className="font-medium text-foreground">Swipe on touch</p>
             <p>Right: liked · Left: not for me</p>
-            <p>Up: interested · Down: skip</p>
+            <p>Up: interested · Down: haven’t watched</p>
           </div>
         </aside>
       </div>

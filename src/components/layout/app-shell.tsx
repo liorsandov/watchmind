@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BrainCircuit,
   Clock3,
   Compass,
   Heart,
@@ -35,6 +36,7 @@ interface NavigationItem {
 const navigation: NavigationItem[] = [
   { href: "/discover", icon: Compass, label: "Discover" },
   { href: "/rate", icon: Sparkles, label: "Rate titles" },
+  { href: "/taste", icon: BrainCircuit, label: "Your taste" },
   { href: "/recommendations", icon: Star, label: "Recommendations" },
   { href: "/watchlist", icon: Heart, label: "Watchlist" },
   { href: "/history", icon: Clock3, label: "History" },

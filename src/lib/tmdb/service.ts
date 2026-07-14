@@ -13,6 +13,14 @@ const LIST_REVALIDATE_SECONDS = 1800;
 const DETAILS_REVALIDATE_SECONDS = 21600;
 const GENRES_REVALIDATE_SECONDS = 86400;
 
+export interface TmdbDiscoverOptions {
+  mediaType: MediaType;
+  page?: number;
+  genreIds?: readonly number[];
+  language?: string | null;
+  releaseYearGte?: number | null;
+}
+
 function parsePage(raw: unknown, mediaType: MediaType) {
   const page = tmdbPageSchema.safeParse(raw);
   if (!page.success) {
@@ -61,6 +69,38 @@ export class TmdbService {
       tags: ["tmdb", "tmdb-popular-tv"],
     });
     return parsePage(raw, "tv");
+  }
+
+  async discover(options: TmdbDiscoverOptions) {
+    const page = Math.min(Math.max(options.page ?? 1, 1), 10);
+    const params: Record<string, string | number | boolean> = {
+      include_adult: false,
+      include_video: false,
+      page,
+      sort_by: "popularity.desc",
+      "vote_count.gte": 40,
+    };
+
+    if (options.genreIds && options.genreIds.length > 0) {
+      params.with_genres = [...new Set(options.genreIds)].slice(0, 3).join(",");
+    }
+    if (options.language) {
+      params.with_original_language = options.language;
+    }
+    if (options.releaseYearGte) {
+      const key =
+        options.mediaType === "movie"
+          ? "primary_release_date.gte"
+          : "first_air_date.gte";
+      params[key] = `${options.releaseYearGte}-01-01`;
+    }
+
+    const raw = await this.client.request(`/discover/${options.mediaType}`, {
+      params,
+      revalidate: LIST_REVALIDATE_SECONDS,
+      tags: ["tmdb", `tmdb-discover-${options.mediaType}`],
+    });
+    return parsePage(raw, options.mediaType);
   }
 
   async search(query: string, page = 1) {

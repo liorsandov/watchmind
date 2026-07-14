@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "NODE_OPTIONS='--conditions=react-server' tsx --test src/lib/tmdb/*.test.ts src/lib/rating/*.test.ts",
+    "test": "NODE_OPTIONS='--conditions=react-server' tsx --test src/lib/tmdb/*.test.ts src/lib/rating/*.test.ts src/lib/taste/*.test.ts src/lib/recommendations/*.test.ts",
     "typecheck": "tsc --noEmit",
     "db:start": "supabase start",
     "db:stop": "supabase stop",

@@ -6,7 +6,7 @@ import {
 } from "@/lib/repositories/context";
 import type { TablesInsert } from "@/types/database";
 import type { ContentItem } from "@/types/media";
-import { toContentItemInsert } from "@/lib/repositories/content-items";
+import { upsertContentItem } from "@/lib/repositories/content-items";
 
 export type SaveInteractionInput = Pick<
   TablesInsert<"user_content_interactions">,
@@ -25,6 +25,27 @@ export async function listCurrentInteractions(limit = 100) {
 
   throwIfDatabaseError(error);
   return data ?? [];
+}
+
+export async function listAllCurrentInteractions() {
+  const { supabase, userId } = await getAuthenticatedContext();
+  const pageSize = 500;
+  const interactions: Awaited<ReturnType<typeof listCurrentInteractions>> = [];
+
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await supabase
+      .from("user_content_interactions")
+      .select("*")
+      .eq("user_id", userId)
+      .order("id", { ascending: true })
+      .range(from, from + pageSize - 1);
+
+    throwIfDatabaseError(error);
+    interactions.push(...(data ?? []));
+    if (!data || data.length < pageSize) break;
+  }
+
+  return interactions;
 }
 
 export async function saveInteraction(input: SaveInteractionInput) {
@@ -47,13 +68,7 @@ export async function saveNewRatingInteraction(
   input: Pick<SaveInteractionInput, "interaction_type" | "source">,
 ) {
   const { supabase, userId } = await getAuthenticatedContext();
-  const { data: content, error: contentError } = await supabase
-    .from("content_items")
-    .upsert(toContentItemInsert(item), { onConflict: "tmdb_id,media_type" })
-    .select("id")
-    .single();
-
-  throwIfDatabaseError(contentError);
+  const content = await upsertContentItem(item);
   if (!content) throw new Error("The title could not be cached.");
 
   const { data: existing, error: existingError } = await supabase
@@ -105,6 +120,16 @@ export async function undoRatingInteraction(interactionId: string) {
   return data;
 }
 
+export async function deleteInteraction(contentId: string) {
+  const { supabase, userId } = await getAuthenticatedContext();
+  const { error } = await supabase
+    .from("user_content_interactions")
+    .delete()
+    .eq("content_id", contentId)
+    .eq("user_id", userId);
+  throwIfDatabaseError(error);
+}
+
 export async function listInteractionHistory(contentId?: string) {
   const { supabase, userId } = await getAuthenticatedContext();
   let query = supabase
@@ -119,4 +144,22 @@ export async function listInteractionHistory(contentId?: string) {
   const { data, error } = await query;
   throwIfDatabaseError(error);
   return data ?? [];
+}
+
+export async function listAllInteractionHistory() {
+  const { supabase, userId } = await getAuthenticatedContext();
+  const rows: Awaited<ReturnType<typeof listInteractionHistory>> = [];
+  const pageSize = 500;
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await supabase
+      .from("user_content_interaction_events")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .range(from, from + pageSize - 1);
+    throwIfDatabaseError(error);
+    rows.push(...(data ?? []));
+    if (!data || data.length < pageSize) break;
+  }
+  return rows;
 }

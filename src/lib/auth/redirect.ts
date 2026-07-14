@@ -4,6 +4,7 @@ const protectedRoutes = [
   "/recommendations",
   "/watchlist",
   "/history",
+  "/api/export",
   "/settings",
 ] as const;
 

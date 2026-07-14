@@ -36,8 +36,10 @@ Privacy has three independent layers:
 2. Every user-owned table has RLS enabled with separate operation policies that
    explicitly target `authenticated` and compare ownership to
    `(select auth.uid())`.
-3. Table privileges prevent authenticated clients from mutating shared TMDB
-   metadata or forging append-only interaction/recommendation history.
+3. Table privileges prevent authenticated clients from directly mutating shared
+   TMDB metadata or forging append-only interaction/recommendation history. A
+   restricted `upsert_content_item` function is the single cache-write path for
+   normalized public TMDB metadata.
 
 The profile trigger is `security definer`, has an empty search path, uses fully
 qualified object names, and is not executable by API roles. It creates the
@@ -79,6 +81,7 @@ exist only inside the rolled-back pgTAP transaction.
   before applying migrations to a linked project.
 - Task 4 will provide session refresh, protected layouts, and sign-in UI. The
   repositories already reject anonymous use, but no route calls them yet.
-- Task 5 will define the privileged server path for writing shared TMDB cache
-  records. Normal authenticated clients intentionally have read-only access.
+- Shared TMDB cache records are written through the restricted
+  `upsert_content_item` function. Normal authenticated clients intentionally
+  keep read-only direct table access.
 - Local SQL execution requires Docker; static application verification does not.
