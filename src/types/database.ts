@@ -21,6 +21,8 @@ export type InteractionType =
   | "unsure";
 export type InteractionSource =
   | "onboarding"
+  | "trending"
+  | "popular"
   | "rate"
   | "discover"
   | "recommendation"

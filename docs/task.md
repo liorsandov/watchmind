@@ -55,7 +55,7 @@ Deployment: Vercel
 - [x] Task 3 — Database and Privacy
 - [x] Task 4 — Authentication
 - [x] Task 5 — TMDB Integration
-- [ ] Task 6 — Tinder-Style Rating Flow
+- [x] Task 6 — Tinder-Style Rating Flow
 - [ ] Task 7 — Taste Profile Engine
 - [ ] Task 8 — Recommendation Engine
 - [ ] Task 9 — Recommendation Experience
@@ -554,18 +554,18 @@ At the end, test:
 
 ## Completion Checklist
 
-- [ ] One-card-at-a-time flow works
-- [ ] All interaction types are supported
-- [ ] Mobile swipe works
-- [ ] Keyboard controls work
-- [ ] Interactions persist after refresh
-- [ ] Undo works
-- [ ] Failed save rolls back safely
-- [ ] Duplicate submissions are blocked
-- [ ] Classified items do not immediately repeat
-- [ ] Queue mixes types, years, and genres
-- [ ] Empty queue state exists
-- [ ] Accessibility requirements are met
+- [x] One-card-at-a-time flow works
+- [x] All interaction types are supported
+- [x] Mobile swipe works
+- [x] Keyboard controls work
+- [x] Interactions persist after refresh
+- [x] Undo works
+- [x] Failed save rolls back safely
+- [x] Duplicate submissions are blocked
+- [x] Classified items do not immediately repeat
+- [x] Queue mixes types, years, and genres
+- [x] Empty queue state exists
+- [x] Accessibility requirements are met
 
 ---
 
